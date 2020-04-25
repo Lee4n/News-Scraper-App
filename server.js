@@ -5,8 +5,6 @@ const bodyParser = require("body-parser");
 const axios = require("axios");
 const cheerio = require("cheerio");
 
-// const db = require("./models");
-
 let PORT = process.env.PORT || 3000;
 
 const app = express();
@@ -20,7 +18,13 @@ const exphbs = require("express-handlebars");
 app.engine("handlebars", exphbs({defaultLayout: "main"}));
 app.set("view engine", "handlebars");
 
-mongoose.connect("mongodb://localhost/unit18Populater", { useNewUrlParser: true });
+mongoose.connect("mongodb://localhost/scraped_news", { useNewUrlParser: true });
+const db = mongoose.connection;
+
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", function() {
+  console.log("Connected to Mongoose!");
+});
 
 // Routes
 
