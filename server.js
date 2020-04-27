@@ -2,9 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 
-const axios = require("axios");
-const cheerio = require("cheerio");
-
 let PORT = process.env.PORT || 8000;
 
 const app = express();
@@ -12,7 +9,7 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(express.static("public"));
+app.use(express.static(process.cwd() + "/public"));
 
 const exphbs = require("express-handlebars");
 app.engine("handlebars", exphbs({defaultLayout: "main"}));
@@ -26,7 +23,8 @@ db.once("open", function() {
   console.log("Connected to Mongoose!");
 });
 
-// Routes
+const routes = require("./controller/controller.js");
+app.use("/", routes);
 
 app.listen(PORT, function() {
     console.log(`App running on http://localhost:${PORT}`);

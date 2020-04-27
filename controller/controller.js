@@ -80,3 +80,5 @@ router.post("/articles/:id", function (req, res) {
             res.json(err);
         });
 });
+
+module.exports = router;
