@@ -1,0 +1,17 @@
+<div class="jumbotron text-center">
+    <h1>Click Scrape to get new articles!</h1>
+</div>
+<div class="row">
+
+    {{#each article}}
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{this.title}}</h5>
+            <a href="/readArticle/{{this._id}}" class="btn btn-primary">Read Article</a>
+        </div>
+    </div>
+
+    {{/each}}
+</div>
+</div>

@@ -14,27 +14,46 @@ router.get("/", function (req, res) {
 });
 
 router.get("/scrape", function (req, res) {
-    request("https://www.vox.com/", function (error, response, html) {
-        const $ = cheerio.load(html);
-        let titlesArr = [];
+    request("http://www.vox.com", function (error, response, html) {
+        var $ = cheerio.load(html);
+        var titlesArray = [];
 
         $(".c-entry-box--compact__title").each(function (i, element) {
-            let result = {};
+            var result = {};
 
-            result.title = $(this).children('a').attr('href');
-            result.link = $(this).children('a').attr('href');
+            result.title = $(this)
+                .children("a")
+                .text();
+            result.link = $(this)
+                .children("a")
+                .attr("href");
 
-            Article.create(result)
-                .then(function (dbArticle) {
+            if (result.title !== "" && result.link !== "") {
+                if (titlesArray.indexOf(result.title) == -1) {
+                    titlesArray.push(result.title);
 
-                    console.log(dbArticle);
-                })
-                .catch(function (err) {
+                    Article.count({
+                        title: result.title
+                    }, function (err, test) {
+                        if (test === 0) {
+                            var entry = new Article(result);
 
-                    console.log(err);
-                });
+                            entry.save(function (err, doc) {
+                                if (err) {
+                                    console.log(err);
+                                } else {
+                                    console.log(doc);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    console.log("Article already exists.");
+                }
+            } else {
+                console.log("Not saved to DB, missing data");
+            }
         });
-
         res.redirect("/");
     });
 });
@@ -42,11 +61,32 @@ router.get("/scrape", function (req, res) {
 router.get("/articles", function (req, res) {
     Article.find({})
         .then(function (dbArticle) {
-            res.json(dbArticle);
+            res.render("index", dbArticle);
         })
         .catch(function (err) {
             res.json(err);
         });
+});
+
+router.get("/articles-json", function (req, res) {
+    Article.find({}, function (err, doc) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.json(doc);
+        }
+    });
+});
+
+router.get("/clear", function (req, res) {
+    Article.remove({}, function (err, doc) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("cleared all articles");
+        }
+    });
+    res.redirect("/");
 });
 
 router.get("/articles/:id", function (req, res) {
